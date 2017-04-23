@@ -1,0 +1,4 @@
+Qt5Widgets.dll filter=lfs diff=lfs merge=lfs -text
+Qt5Core.dll filter=lfs diff=lfs merge=lfs -text
+Qt5Gui.dll filter=lfs diff=lfs merge=lfs -text
+sfml-graphics-2.dll filter=lfs diff=lfs merge=lfs -text
