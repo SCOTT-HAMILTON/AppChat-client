@@ -27,7 +27,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-LIBS += -LC:/SFML/lib
+LIBS += -L C:/SFML-2.4.2/Qt-MinGW-x86/lib
 
 # LIBS += -lvorbisfile -lFLAC -lfreetype -ljpeg -logg -lopenal32 -lvorbis -lvorbisenc
 
@@ -37,8 +37,8 @@ CONFIG(debug, debug|release): LIBS += -lsfml-audio-d -lsfml-graphics-d -lsfml-ma
 # CONFIG(release, debug|release): LIBS += -lsfml-audio-s -lsfml-graphics-s -lsfml-main -lsfml-network-s -lsfml-window-s -lsfml-system-s
 # CONFIG(debug, debug|release): LIBS += -lsfml-audio-s-d -lsfml-graphics-s-d -lsfml-main-d -lsfml-network-s-d -lsfml-window-s-d -lsfml-system-s-d
 
-INCLUDEPATH += C:/SFML/include
-DEPENDPATH += C:/SFML/include
+INCLUDEPATH += C:/SFML-2.4.2/Qt-MinGW-x86/include
+DEPENDPATH += C:/SFML-2.4.2/Qt-MinGW-x86/include
 
 HEADERS += \
     WinApp.h \
