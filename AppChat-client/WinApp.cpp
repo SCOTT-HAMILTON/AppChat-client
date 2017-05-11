@@ -1,9 +1,22 @@
 #include "WinApp.h"
 #include <iostream>
 
+#include <QIcon>
+#include <QApplication>
+#include <RSA-Crypt.h>
+
 WinApp::WinApp(sf::IpAddress Host): QWidget(),
-  m_host(Host), updateMessage(false), type()
+  m_host(Host), updateMessage(false), type(), dialogIsOpen(false), p(509), q(9403)
 {
+    //config button
+    QIcon configIcon(QApplication::applicationDirPath()+"/config-button.png");
+    m_configButton = new QPushButton;
+    m_configButton->setIcon(configIcon);
+    QMenu *menu = new QMenu("config button");
+    menu->addAction("modifier l'ip du serveur", this, &changeHost_GUI);
+    m_configButton->setMenu(menu);
+    m_configButton->setFixedWidth(25);
+    m_configButton->setFixedHeight(25);
 
     //pseudo GUI
     m_pseudo = QString::fromStdString(sf::IpAddress::getPublicAddress().toString());
@@ -31,6 +44,7 @@ WinApp::WinApp(sf::IpAddress Host): QWidget(),
     m_enterMessage->hide();
     m_enterMLay->addRow("Message", m_enterMessage);
 
+    m_mainLay->addWidget(m_configButton, 0, Qt::AlignTop|Qt::AlignRight);
     m_mainLay->addWidget(m_txtPseudo);
     m_mainLay->addWidget(m_editpseudo);
     m_mainLay->addWidget(m_pseudoButton);
@@ -39,9 +53,12 @@ WinApp::WinApp(sf::IpAddress Host): QWidget(),
 
     setLayout(m_mainLay);
 
+    getPUKey(p, q, n, e);
+    getPRKey(p, q, n, d);
+
     //setConnection
+    QObject::connect(m_pseudoButton, SIGNAL(clicked(bool)), this, SLOT(showGui()));
     QObject::connect(m_retryConnection, SIGNAL(clicked(bool)), this, SLOT(connectToHost()));
-    connectToHost();
 }
 void WinApp::keyPressEvent(QKeyEvent *event){
     if (event->key() == 16777220){
@@ -57,7 +74,7 @@ void WinApp::keyReleaseEvent(QKeyEvent *event){
 
 void WinApp::tryUpdateMessage(){
     if (updateMessage && m_enterMessage->hasFocus() && m_enterMessage->text() != ""){
-        m_txtContenue += QString("\nmoi : "+m_enterMessage->text());
+        m_txtContenue += QString("moi : "+m_enterMessage->text()+"\n");
         m_textRMessage->append(QString("moi : "+m_enterMessage->text()));
         m_textRMessage->moveCursor(QTextCursor::End);
         sendMessage(QString(m_pseudo+" : "+m_enterMessage->text()));
@@ -68,63 +85,96 @@ void WinApp::tryUpdateMessage(){
 void WinApp::sendMessage(const QString &text){
     sf::Packet send;
     if (text != ""){
-       send << DataType::message <<text.toStdString();
+       send << DataType::message << ToStr(crypt(n, e, (text.toStdString())));
        m_socket.send(send);
     }
 }
 
 void WinApp::receiveData(QString dataR){
-    m_txtContenue += QString("\n")+dataR;
-    m_textRMessage->append(dataR);
+    std::string tmp = dataR.toStdString();
+    QString message =  QString::fromStdString(decrypt(d, n, FromStr(tmp)))+QString("\n");
+    m_txtContenue += message;
+    m_textRMessage->append(message);
     m_textRMessage->moveCursor(QTextCursor::End);
 }
 
 void WinApp::showGui(){
-    if (m_editpseudo->text().toStdString() != ""){
-        m_pseudo = m_editpseudo->text();
-    }
+    if (!connectToHost()){
 
-    sf::Packet send, receive;
-    std::string dataR, typeR;
-    send << DataType::pseudo << m_pseudo.toStdString();
-    m_socket.send(send);
-    typeR = "";
-    m_socket.receive(receive);
-    receive >> typeR >> dataR;
+        if (m_editpseudo->text().toStdString() != ""){
+            m_pseudo = m_editpseudo->text();
+        }
 
-    if (typeR == DataType::pseudoVailable){
-        send.clear();
-        send << DataType::getInitMessages << "";
+        sf::Packet send, receive;
+        std::string dataR, typeR;
+        send << DataType::pseudo << m_pseudo.toStdString();
         m_socket.send(send);
-        receive.clear();
+        typeR = "";
         m_socket.receive(receive);
         receive >> typeR >> dataR;
-        m_txtContenue = QString::fromStdString(dataR);
-        m_textRMessage->setPlainText(m_txtContenue);
 
-        m_errorConnection->hide();
-        std::cout << "pseudo available" << std::endl;
-        m_txtPseudo->hide();
-        m_editpseudo->hide();
-        m_pseudoButton->hide();
+        if (typeR == DataType::pseudoVailable){
+            send.clear();
+            send << DataType::getInitMessages << "";
+            m_socket.send(send);
+            receive.clear();
+            m_socket.receive(receive);
+            receive >> typeR >> dataR;
+            m_txtContenue = QString::fromStdString(decrypt(d, n, FromStr(dataR)));
+            m_textRMessage->setPlainText(m_txtContenue);
 
-        m_mainLay->addLayout(m_enterMLay);
-        m_textRMessage->show();
-        m_enterMessage->show();
-        setWindowTitle("Client : "+m_pseudo);
-        setFixedSize(300, 300);
-        m_ThreadManager = new ThreadManager(&m_socket);
-        QObject::connect(m_ThreadManager, SIGNAL(workerRData(QString)), this, SLOT(receiveData(QString)));
-        m_ThreadManager->startWorker();
-    }
-    else if (typeR == DataType::pseudoUnavailable){
-        m_errorConnection->hide();
-        m_errorConnection->setText("ce pseudo est déjà pris, choisissez en un autre.");
-        m_errorConnection->show();
-    }
+            m_errorConnection->hide();
+            std::cout << "pseudo available" << std::endl;
+            m_txtPseudo->hide();
+            m_editpseudo->hide();
+            m_pseudoButton->hide();
+            m_configButton->hide();
+            if (dialogIsOpen){
+                m_dialogChangeIp->close();
+                dialogIsOpen = false;
+            }
+            m_mainLay->addLayout(m_enterMLay);
+            m_textRMessage->show();
+            m_enterMessage->show();
+            setWindowTitle("Client : "+m_pseudo);
+            setFixedSize(300, 300);
+            m_ThreadManager = new ThreadManager(&m_socket);
+            QObject::connect(m_ThreadManager, SIGNAL(workerRData(QString)), this, SLOT(receiveData(QString)));
+            m_ThreadManager->startWorker();
+        }
+        else if (typeR == DataType::pseudoUnavailable){
+            m_errorConnection->hide();
+            m_errorConnection->setText("ce pseudo est déjà pris, choisissez en un autre.");
+            m_errorConnection->show();
+        }
 
+    }else std::cout << "connection error, retry" << std::endl;
 
+}
 
+void WinApp::changeHost_GUI(){
+    m_dialogChangeIp = new QDialog(this);
+    QLabel *txt = new QLabel("Entrer l'addresse ip du serveur : ");
+    m_changeIpEdit = new QLineEdit;
+    QPushButton *button = new QPushButton("modifier");
+
+    QVBoxLayout *lay = new QVBoxLayout;
+    lay->addWidget(txt);
+    lay->addWidget(m_changeIpEdit);
+    lay->addWidget(button);
+    m_dialogChangeIp->setLayout(lay);
+
+    QObject::connect(button, SIGNAL(clicked()), this, SLOT(changeHost()));
+
+    m_dialogChangeIp->show();
+    dialogIsOpen = true;
+}
+
+void WinApp::changeHost(){
+    m_dialogChangeIp->close();
+    dialogIsOpen = false;
+    std::cout << "host changed to: " << (m_changeIpEdit->text()).toStdString() << std::endl;
+    m_host = sf::IpAddress((m_changeIpEdit->text()).toStdString());
 }
 
 bool WinApp::connectToHost(){
@@ -132,6 +182,7 @@ bool WinApp::connectToHost(){
     std::string dataS("You're connected with "+sf::IpAddress::getLocalAddress().toString());
     send << dataS;
     m_errorConnection->hide();
+    m_socket.disconnect();
     if (m_socket.connect(m_host, 53000) != sf::Socket::Done){
         m_errorConnection->show();
         m_retryConnection->show();
@@ -149,7 +200,7 @@ bool WinApp::connectToHost(){
     }
     m_errorConnection->hide();
     m_retryConnection->hide();
-    QObject::connect(m_pseudoButton, SIGNAL(clicked(bool)), this, SLOT(showGui()));
+
     return 0;
 }
 

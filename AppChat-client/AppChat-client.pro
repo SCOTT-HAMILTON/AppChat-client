@@ -27,18 +27,24 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-LIBS += -LC:/SFML/lib
+LIBS += -LC:/SFML-2.4.2/CB-MinGW-x86/lib
+LIBS += -LC:/RSA-Crypt/mingw-530_32_qt/lib
 
 # LIBS += -lvorbisfile -lFLAC -lfreetype -ljpeg -logg -lopenal32 -lvorbis -lvorbisenc
 
 CONFIG(release, debug|release): LIBS += -lsfml-audio -lsfml-graphics -lsfml-main -lsfml-network -lsfml-window -lsfml-system
 CONFIG(debug, debug|release): LIBS += -lsfml-audio-d -lsfml-graphics-d -lsfml-main-d -lsfml-network-d -lsfml-window-d -lsfml-system-d
 
+LIBS += -lRSA-Crypt -lgmpxx -lgmp
+
 # CONFIG(release, debug|release): LIBS += -lsfml-audio-s -lsfml-graphics-s -lsfml-main -lsfml-network-s -lsfml-window-s -lsfml-system-s
 # CONFIG(debug, debug|release): LIBS += -lsfml-audio-s-d -lsfml-graphics-s-d -lsfml-main-d -lsfml-network-s-d -lsfml-window-s-d -lsfml-system-s-d
 
-INCLUDEPATH += C:/SFML/include
-DEPENDPATH += C:/SFML/include
+INCLUDEPATH +=C:/SFML-2.4.2/CB-MinGW-x86/include
+DEPENDPATH += C:/SFML-2.4.2/CB-MinGW-x86/include
+
+INCLUDEPATH += C:/RSA-Crypt/mingw-530_32_qt/include
+DEPENDPATH += C:/RSA-Crypt/mingw-530_32_qt/include
 
 HEADERS += \
     WinApp.h \

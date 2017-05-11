@@ -13,6 +13,8 @@
 #include <QThread>
 #include <QLabel>
 #include <QPushButton>
+#include <QMenu>
+#include <QDialog>
 
 #include <string>
 
@@ -31,11 +33,18 @@ public slots:
     void receiveData(QString);
     void showGui();
     bool  connectToHost();
+    void changeHost_GUI();
+    void changeHost();
 
 private:
 
     sf::TcpSocket m_socket;
     sf::IpAddress m_host;
+
+    QPushButton *m_configButton;
+    QDialog *m_dialogChangeIp;
+    bool dialogIsOpen;
+    QLineEdit *m_changeIpEdit;
 
     QLabel *m_txtPseudo;
     QLineEdit *m_editpseudo;
@@ -60,6 +69,12 @@ private:
     void sendMessage(const QString &text);
 
     ThreadManager *m_ThreadManager;
+
+    long long unsigned int p;
+    long long unsigned int q;
+    long long unsigned int n;
+    long long unsigned int e;
+    long long unsigned int d;
 
     DataType type;
 };
