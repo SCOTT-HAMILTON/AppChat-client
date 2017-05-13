@@ -46,8 +46,10 @@ private:
     bool dialogIsOpen;
     QLineEdit *m_changeIpEdit;
 
-    QLabel *m_txtPseudo;
+    QFormLayout *m_connectLay;
     QLineEdit *m_editpseudo;
+    QLineEdit *m_editcode;
+
     QPushButton *m_pseudoButton;
 
     QHBoxLayout *m_errorCLay;

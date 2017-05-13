@@ -19,10 +19,13 @@ WinApp::WinApp(sf::IpAddress Host): QWidget(),
     m_configButton->setFixedHeight(25);
 
     //pseudo GUI
+    m_connectLay = new QFormLayout;
     m_pseudo = QString::fromStdString(sf::IpAddress::getPublicAddress().toString());
-    m_txtPseudo = new QLabel("Entrer votre pseudo : ");
     m_editpseudo = new QLineEdit;
+    m_editcode = new QLineEdit;
     m_pseudoButton = new QPushButton("valider");
+    m_connectLay->addRow("Entrer votre pseudo : ", m_editpseudo);
+    m_connectLay->addRow("Entrer votre code : ", m_editcode);
 
     m_errorCLay = new QHBoxLayout;
     m_errorConnection = new QLabel("le serveur n'est pas disponible pour le moment.");
@@ -45,8 +48,7 @@ WinApp::WinApp(sf::IpAddress Host): QWidget(),
     m_enterMLay->addRow("Message", m_enterMessage);
 
     m_mainLay->addWidget(m_configButton, 0, Qt::AlignTop|Qt::AlignRight);
-    m_mainLay->addWidget(m_txtPseudo);
-    m_mainLay->addWidget(m_editpseudo);
+    m_mainLay->addLayout(m_connectLay);
     m_mainLay->addWidget(m_pseudoButton);
     m_mainLay->addLayout(m_errorCLay);
     m_mainLay->addWidget(m_textRMessage);
@@ -107,13 +109,16 @@ void WinApp::showGui(){
 
         sf::Packet send, receive;
         std::string dataR, typeR;
-        send << DataType::pseudo << m_pseudo.toStdString();
+        send << DataType::connection_client << m_pseudo.toStdString();
+        m_socket.send(send);
+        send.clear();
+        send << DataType::code << m_editcode->text().toStdString();
         m_socket.send(send);
         typeR = "";
         m_socket.receive(receive);
         receive >> typeR >> dataR;
 
-        if (typeR == DataType::pseudoVailable){
+        if (typeR == DataType::valid_connection){
             send.clear();
             send << DataType::getInitMessages << "";
             m_socket.send(send);
@@ -125,8 +130,10 @@ void WinApp::showGui(){
 
             m_errorConnection->hide();
             std::cout << "pseudo available" << std::endl;
-            m_txtPseudo->hide();
             m_editpseudo->hide();
+            m_editcode->hide();
+            m_connectLay->removeRow(m_editpseudo);
+            m_connectLay->removeRow(m_editcode);
             m_pseudoButton->hide();
             m_configButton->hide();
             if (dialogIsOpen){
@@ -142,9 +149,9 @@ void WinApp::showGui(){
             QObject::connect(m_ThreadManager, SIGNAL(workerRData(QString)), this, SLOT(receiveData(QString)));
             m_ThreadManager->startWorker();
         }
-        else if (typeR == DataType::pseudoUnavailable){
+        else {
             m_errorConnection->hide();
-            m_errorConnection->setText("ce pseudo est déjà pris, choisissez en un autre.");
+            m_errorConnection->setText("ce pseudo ou ce code est incompatible");
             m_errorConnection->show();
         }
 
@@ -171,6 +178,7 @@ void WinApp::changeHost_GUI(){
 }
 
 void WinApp::changeHost(){
+
     m_dialogChangeIp->close();
     dialogIsOpen = false;
     std::cout << "host changed to: " << (m_changeIpEdit->text()).toStdString() << std::endl;

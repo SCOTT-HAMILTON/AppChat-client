@@ -14,7 +14,9 @@ SOURCES += \
     WinApp.cpp \
     WorkerReceiver.cpp \
     ThreadManager.cpp \
-    DataType.cpp
+    DataType.cpp \
+    FirstConnectionWin.cpp \
+    Manager.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -29,6 +31,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 LIBS += -LC:/SFML-2.4.2/CB-MinGW-x86/lib
 LIBS += -LC:/RSA-Crypt/mingw-530_32_qt/lib
+LIBS += -LC:/ServerManager/lib
 
 # LIBS += -lvorbisfile -lFLAC -lfreetype -ljpeg -logg -lopenal32 -lvorbis -lvorbisenc
 
@@ -36,6 +39,9 @@ CONFIG(release, debug|release): LIBS += -lsfml-audio -lsfml-graphics -lsfml-main
 CONFIG(debug, debug|release): LIBS += -lsfml-audio-d -lsfml-graphics-d -lsfml-main-d -lsfml-network-d -lsfml-window-d -lsfml-system-d
 
 LIBS += -lRSA-Crypt -lgmpxx -lgmp
+
+CONFIG(release, debug|release): LIBS += -lServerManager
+CONFIG(debug, debug|release): LIBS += -lServerManager-d
 
 # CONFIG(release, debug|release): LIBS += -lsfml-audio-s -lsfml-graphics-s -lsfml-main -lsfml-network-s -lsfml-window-s -lsfml-system-s
 # CONFIG(debug, debug|release): LIBS += -lsfml-audio-s-d -lsfml-graphics-s-d -lsfml-main-d -lsfml-network-s-d -lsfml-window-s-d -lsfml-system-s-d
@@ -46,9 +52,14 @@ DEPENDPATH += C:/SFML-2.4.2/CB-MinGW-x86/include
 INCLUDEPATH += C:/RSA-Crypt/mingw-530_32_qt/include
 DEPENDPATH += C:/RSA-Crypt/mingw-530_32_qt/include
 
+INCLUDEPATH += C:/ServerManager/include
+DEPENDPATH += C:/ServerManager/include
+
 HEADERS += \
     WinApp.h \
     WorkerReceiver.h \
     ThreadManager.h \
-    DataType.h
+    DataType.h \
+    FirstConnectionWin.h \
+    Manager.h
 

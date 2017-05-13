@@ -1,0 +1,14 @@
+INPUT(
+./release\main.o
+./release\WinApp.o
+./release\WorkerReceiver.o
+./release\ThreadManager.o
+./release\DataType.o
+./release\FirstConnectionWin.o
+./release\Manager.o
+./release\moc_WinApp.o
+./release\moc_WorkerReceiver.o
+./release\moc_ThreadManager.o
+./release\moc_FirstConnectionWin.o
+./release\moc_Manager.o
+);
