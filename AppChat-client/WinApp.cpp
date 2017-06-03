@@ -4,10 +4,15 @@
 #include <QIcon>
 #include <QApplication>
 #include <RSA-Crypt.h>
+#include <QPalette>
+#include <QBrush>
+#include <QImage>
 
 WinApp::WinApp(sf::IpAddress Host): QWidget(),
   m_host(Host), updateMessage(false), type(), dialogIsOpen(false), p(509), q(9403)
 {
+    setFixedWidth(340);
+    setFixedHeight(300);
     //config button
     QIcon configIcon(QApplication::applicationDirPath()+"/config-button.png");
     m_configButton = new QPushButton;
@@ -20,15 +25,25 @@ WinApp::WinApp(sf::IpAddress Host): QWidget(),
 
     //pseudo GUI
     m_connectLay = new QFormLayout;
+    QFont font;
+    font.setBold(true);
+    font.setPixelSize(14);
     m_pseudo = QString::fromStdString(sf::IpAddress::getPublicAddress().toString());
     m_editpseudo = new QLineEdit;
     m_editcode = new QLineEdit;
     m_pseudoButton = new QPushButton("valider");
-    m_connectLay->addRow("Entrer votre pseudo : ", m_editpseudo);
-    m_connectLay->addRow("Entrer votre code : ", m_editcode);
+    m_pseudotxt = new QLabel("Entrer votre pseudo : ");
+    m_codetxt = new QLabel("Entrer votre code : ");
+    m_pseudotxt->setFont(font);
+    m_codetxt->setFont(font);
+    m_connectLay->addRow(m_pseudotxt, m_editpseudo);
+    m_connectLay->addRow(m_codetxt, m_editcode);
 
+    QFont font_error;
+    font_error.setPixelSize(11);
     m_errorCLay = new QHBoxLayout;
     m_errorConnection = new QLabel("le serveur n'est pas disponible pour le moment.");
+    m_errorConnection->setFont(font_error);
     m_retryConnection = new QPushButton("réessayer");
     m_errorCLay->addWidget(m_errorConnection);
     m_errorCLay->addWidget(m_retryConnection);
@@ -48,15 +63,19 @@ WinApp::WinApp(sf::IpAddress Host): QWidget(),
     m_enterMLay->addRow("Message", m_enterMessage);
 
     m_mainLay->addWidget(m_configButton, 0, Qt::AlignTop|Qt::AlignRight);
+    m_mainLay->addLayout(m_errorCLay);
     m_mainLay->addLayout(m_connectLay);
     m_mainLay->addWidget(m_pseudoButton);
-    m_mainLay->addLayout(m_errorCLay);
     m_mainLay->addWidget(m_textRMessage);
 
     setLayout(m_mainLay);
 
     getPUKey(p, q, n, e);
     getPRKey(p, q, n, d);
+
+    QPalette fond;
+    fond.setBrush(backgroundRole(),QBrush(QImage(QApplication::applicationDirPath()+"/main-window.jpg")));
+    setPalette(fond);
 
     //setConnection
     QObject::connect(m_pseudoButton, SIGNAL(clicked(bool)), this, SLOT(showGui()));

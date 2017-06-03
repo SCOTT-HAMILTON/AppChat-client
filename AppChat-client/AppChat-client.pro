@@ -16,7 +16,8 @@ SOURCES += \
     ThreadManager.cpp \
     DataType.cpp \
     FirstConnectionWin.cpp \
-    Manager.cpp
+    Manager.cpp \
+    BackSide.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -61,5 +62,6 @@ HEADERS += \
     ThreadManager.h \
     DataType.h \
     FirstConnectionWin.h \
-    Manager.h
+    Manager.h \
+    BackSide.h
 

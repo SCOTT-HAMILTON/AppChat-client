@@ -47,6 +47,8 @@ private:
     QLineEdit *m_changeIpEdit;
 
     QFormLayout *m_connectLay;
+    QLabel *m_pseudotxt;
+    QLabel *m_codetxt;
     QLineEdit *m_editpseudo;
     QLineEdit *m_editcode;
 
@@ -71,6 +73,8 @@ private:
     void sendMessage(const QString &text);
 
     ThreadManager *m_ThreadManager;
+
+    int m_nbRetry;
 
     long long unsigned int p;
     long long unsigned int q;

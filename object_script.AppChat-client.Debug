@@ -6,9 +6,11 @@ INPUT(
 ./debug\DataType.o
 ./debug\FirstConnectionWin.o
 ./debug\Manager.o
+./debug\BackSide.o
 ./debug\moc_WinApp.o
 ./debug\moc_WorkerReceiver.o
 ./debug\moc_ThreadManager.o
 ./debug\moc_FirstConnectionWin.o
 ./debug\moc_Manager.o
+./debug\moc_BackSide.o
 );

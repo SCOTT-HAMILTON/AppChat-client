@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QDialog>
 
 #include <SFML/Network.hpp>
 
@@ -22,9 +23,18 @@ signals:
 
 public slots:
     int tryConnect();
+    void changeHost_GUI();
+    void changeHost();
+    void changePlan();
 
 private:
     QVBoxLayout *m_mainLay;
+
+    QPushButton *m_configButton;
+    QDialog *m_dialogChangeIp;
+    QLineEdit *m_changeIpEdit;
+
+    bool dialogIsOpen;
 
     QLabel *m_pseudotxt;
     QLineEdit *m_pseudoedit;
@@ -35,6 +45,9 @@ private:
 
     sf::IpAddress m_host;
     sf::TcpSocket m_socket;
+
+    int m_indexPlan;
+    std::vector<QPalette> m_fonds;
 
     bool connected;
 
